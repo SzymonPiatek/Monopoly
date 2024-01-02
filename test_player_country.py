@@ -1,6 +1,6 @@
 import pytest
 
-from classes import Player, Country
+from classes import Player, Country, SpecialTile
 
 
 @pytest.fixture
@@ -9,13 +9,18 @@ def player():
 
 
 @pytest.fixture
+def start():
+    return SpecialTile(name="Start", value=500, location_id=0)
+
+
+@pytest.fixture
 def poland():
-    return Country(name="Poland", buy_cost=500, tile_type="Neutral", location_id=1)
+    return Country(name="Poland", buy_cost=500, location_id=1)
 
 
 @pytest.fixture
 def germany():
-    return Country(name="Germany", buy_cost=1000, tile_type="Neutral", location_id=2)
+    return Country(name="Germany", buy_cost=1000, location_id=2)
 
 
 def test_player_can_buy_country(player, poland):
@@ -65,8 +70,26 @@ def test_player_cannot_sell_country(player, poland):
 
 
 def test_player_can_move(player):
-    player_location = player.location
+    for i in range(100):
+        player_location = 0
+        player.location = 0
 
-    player.move()
-    assert player.location != player_location
-    assert player.location in range(player_location, player_location + 12)
+        player.move()
+        assert player.location != player_location
+        assert player.location in range(player_location + 1, player_location + 13)
+
+
+def test_player_stand_at_start_tile(player, start):
+    player_money = player.money
+    start_bonus = start.value
+
+    if player.location == start.location:
+        start.start_bonus(player=player)
+    assert player.money == player_money + start_bonus
+
+    player_money = player.money
+    player.location = 1
+
+    if player.location == start.location:
+        start.start_bonus(player=player)
+    assert player.money == player_money
