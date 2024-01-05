@@ -1,12 +1,16 @@
 import pytest
 
 from classes import Player, Country, SpecialTile
+from board import board
 
 
 @pytest.fixture
 def player():
-    return Player(name="Szymon", start_money=2000)
+    return Player(name="", start_money=2000, color="#262626")
 
+@pytest.fixture
+def player2():
+    return Player(name="", start_money=2000, color="#262626")
 
 @pytest.fixture
 def start():
@@ -16,11 +20,6 @@ def start():
 @pytest.fixture
 def poland():
     return Country(name="Poland", buy_cost=500, location_id=1)
-
-
-@pytest.fixture
-def germany():
-    return Country(name="Germany", buy_cost=1000, location_id=2)
 
 
 def test_player_can_buy_country(player, poland):
@@ -74,7 +73,7 @@ def test_player_can_move(player):
         player_location = 0
         player.location = 0
 
-        player.move()
+        player.move(dice=player.throw_dice()['result'], board=board)
         assert player.location != player_location
         assert player.location in range(player_location + 1, player_location + 13)
 

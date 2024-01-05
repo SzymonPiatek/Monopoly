@@ -1,8 +1,5 @@
-from random import randint
-
-
-def throw_dice():
-    return randint(1, 6) + randint(1, 6)
+from random import randint, choice, random
+from settings import *
 
 
 class SpecialTile:
@@ -11,31 +8,22 @@ class SpecialTile:
         self.value = value
         self.location = location_id
         self.owner = 0
-        self.buy_cost = None
 
     def start_bonus(self, player):
         player.money += self.value
-        print(f"Start +{self.value}")
-        print(player.money)
 
     def parking_pay(self, player):
         player.money -= self.value
-        print(f"Zapłacono za parking {self.value}")
-        print(player.money)
 
     def tax_pay(self, player):
         player.money -= self.value
-        print(f"Opłacono podatki w wysokości {self.value}")
-        print(player.money)
 
     def prison_pay(self, player):
         print("Trafiłeś do więzienia")
         if player.money >= 1000:
             player.money -= self.value
-            print(f"Tracisz {self.value}")
         if player.money < 1000:
             player.money = 0
-            print(f"Tracisz wszystkie pieniądze")
 
     def card_random_effect(self, player):
         random_number = randint(-10, 10)
@@ -69,41 +57,68 @@ class Country:
         else:
             print("Bankructwo")
 
-    def owner(self):
-        return f"{self.owner}"
+    def return_owner(self):
+        if self.owner is not None:
+            return f"{self.owner}"
+        else:
+            return "Kraj nie ma właściciela"
 
 
 class Player:
-    def __init__(self, name, start_money):
-        self.name = name
-        self.money = start_money
+    def __init__(self, name, start_money, color):
+        self.name = choice(NAMES) if not name else name
+        self.money = 2000 if not start_money else start_money
         self.location = 0
+        self.countries = []
+        self.color = color
 
-    def __str__(self):
-        return self.name
+    def country_list(self):
+        if not self.countries:
+            return "Brak krajów"
+        elif len(self.countries) == 1:
+            return self.countries
+        elif len(self.countries) > 1:
+            result = ""
+            k = 0
+            for i in self.countries:
+                if not result:
+                    result = f"{i},"
+                    k += 1
+                else:
+                    if i == self.countries[-1]:
+                        result = f"{result} {i}"
+                    else:
+                        if k % 2 != 0 and k < len(self.countries):
+                            result = f"{result} {i},\n"
+                        elif k % 2 == 0 and k < len(self.countries):
+                            result = f"{result} {i},"
+                    k += 1
+            return result
 
     def buy_country(self, country):
         if self.money >= country.buy_cost:
             if country.owner is None:
                 self.money -= country.buy_cost
+                self.countries.append(country.name)
                 country.owner = self
-                print("Kupiłeś ten kraj")
-        elif country.owner == self:
-            print("Ten kraj już należy do ciebie")
-        else:
-            print("Nie możesz kupić tego kraju")
 
     def sell_country(self, country):
         if country.owner == self:
             self.money += country.sell_cost
             country.owner = None
-            print("Sprzedałeś ten kraj")
-        else:
-            print("Ten kraj nie należy do ciebie")
 
-    def move(self):
-        dice = throw_dice()
+    def throw_dice(self):
+        dice1 = randint(1, 6)
+        dice2 = randint(1, 6)
+        result = dice1 + dice2
+
+        return {
+            "dice1": dice1,
+            "dice2": dice2,
+            "result": result
+        }
+
+    def move(self, dice, board):
         self.location = self.location + dice
-        if self.location > 15:
-            self.location = self.location - 16
-        return dice
+        if self.location > len(board):
+            self.location = self.location - (len(board)+1)
