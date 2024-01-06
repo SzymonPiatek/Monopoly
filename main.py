@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from tkinter import messagebox, colorchooser
 
-from classes import Player, Country, SpecialTile
+from classes import Player, Tile
 from settings import *
 
 
@@ -10,7 +10,7 @@ def change_frame(old_frame, new_frame):
     new_frame()
 
 
-def player_frame(name_label, money_title, money_label, country_title, country_label, color):
+def place_player_frame_widgets(name_label, money_title, money_label, country_title, country_label, color):
     name_label.place(relx=0.5, rely=0.04, anchor=ctk.CENTER, relwidth=1, relheight=0.08)
     money_title.place(relx=0.5, rely=0.14, anchor=ctk.CENTER, relwidth=1)
     money_label.place(relx=0.5, rely=0.19, anchor=ctk.CENTER)
@@ -18,7 +18,12 @@ def player_frame(name_label, money_title, money_label, country_title, country_la
     country_label.place(relx=0.5, rely=0.31, anchor=ctk.CENTER)
 
     # Configure
-    name_label.configure(bg_color=color)
+    name_label.configure(fg_color=color)
+
+
+def place_tile_areas(tile_list: list):
+    for tile in tile_list:
+        tile.pack(fill=ctk.BOTH, expand=True)
 
 
 class GameApp:
@@ -61,94 +66,6 @@ class GameApp:
         # Frame
         self.main_menu_frame.pack(fill=ctk.BOTH, expand=1)
 
-    def choose_color_button(self, button):
-        color = colorchooser.askcolor()[1]
-        button.configure(fg_color=color)
-
-    def set_player_view(self):
-        # Create Frame
-        self.menu_frame = ctk.CTkFrame(master=self.master)
-
-        # Fonts
-        self.font_label_set_player_view = ctk.CTkFont(family="Helvetica", size=48, weight="bold")
-        self.font_entry_set_player_view = ctk.CTkFont(family="Helvetica", size=32, weight="bold")
-        self.font_button_set_player_view = self.font_button_main_menu
-
-        # Player One Widgets
-        self.player_one_label = ctk.CTkLabel(master=self.menu_frame,
-                                             text="Gracz 1",
-                                             font=self.font_label_set_player_view)
-        self.player_one_entry = ctk.CTkEntry(master=self.menu_frame,
-                                             placeholder_text="Wpisz nazwę gracza",
-                                             font=self.font_entry_set_player_view)
-        self.player_one_choose_color = ctk.CTkButton(master=self.menu_frame,
-                                                     text="Wybierz kolor",
-                                                     command=lambda: self.choose_color_button(
-                                                         self.player_one_choose_color),
-                                                     font=self.font_entry_set_player_view)
-
-        # Player Two Widgets
-        self.player_two_label = ctk.CTkLabel(master=self.menu_frame,
-                                             text="Gracz 2",
-                                             font=self.font_label_set_player_view)
-        self.player_two_entry = ctk.CTkEntry(master=self.menu_frame,
-                                             placeholder_text="Wpisz nazwę gracza",
-                                             font=self.font_entry_set_player_view)
-        self.player_two_choose_color = ctk.CTkButton(master=self.menu_frame,
-                                                     text="Wybierz kolor",
-                                                     command=lambda: self.choose_color_button(
-                                                         self.player_two_choose_color),
-                                                     font=self.font_entry_set_player_view)
-
-        # Game settings Widgets
-        self.start_value_label = ctk.CTkLabel(master=self.menu_frame,
-                                              text="Stan konta na start",
-                                              font=self.font_label_set_player_view)
-        self.start_value_entry = ctk.CTkEntry(master=self.menu_frame,
-                                              placeholder_text="Domyślnie 2000",
-                                              font=self.font_entry_set_player_view)
-
-        # Widgets
-        self.start_game_button = ctk.CTkButton(master=self.menu_frame,
-                                               text="Start",
-                                               command=self.start_game_button_click,
-                                               font=self.font_button_set_player_view,
-                                               fg_color=BUTTON_COLOR_1,
-                                               hover_color=HOVER_BUTTON_COLOR_1)
-
-        # Layout
-        self.player_one_label.place(relx=0.25, rely=0.2, anchor=ctk.CENTER)
-        self.player_one_entry.place(relx=0.25, rely=0.27, anchor=ctk.CENTER, relwidth=0.2, relheight=0.05)
-        self.player_one_choose_color.place(relx=0.25, rely=0.34, anchor=ctk.CENTER, relwidth=0.2, relheight=0.05)
-
-        self.player_two_label.place(relx=0.75, rely=0.2, anchor=ctk.CENTER)
-        self.player_two_entry.place(relx=0.75, rely=0.27, anchor=ctk.CENTER, relwidth=0.2, relheight=0.05)
-        self.player_two_choose_color.place(relx=0.75, rely=0.34, anchor=ctk.CENTER, relwidth=0.2, relheight=0.05)
-
-        self.start_value_label.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
-        self.start_value_entry.place(relx=0.5, rely=0.57, anchor=ctk.CENTER, relwidth=0.2, relheight=0.05)
-
-        self.start_game_button.place(relx=0.5, rely=0.7, anchor=ctk.CENTER, relwidth=0.15, relheight=0.08)
-
-        # Frame
-        self.menu_frame.pack(fill=ctk.BOTH, expand=1)
-
-    def start_game_button_click(self):
-        # Set variables
-        self.player_one_name = self.player_one_entry.get()
-        self.player_one_color = self.player_one_choose_color.cget("fg_color")
-        self.player_two_name = self.player_two_entry.get()
-        self.player_two_color = self.player_two_choose_color.cget("fg_color")
-        self.start_value = self.start_value_entry.get()
-        # Change Frame
-        change_frame(old_frame=self.menu_frame, new_frame=self.game_view)
-
-    def player_location_on_board(self, player):
-        # Looking tile where player must be set
-        for tile in self.board:
-            if tile.location == player.location:
-                print(player.location)
-
     def game_view(self):
         # Fonts
         self.font_label_game_view = ctk.CTkFont(family=FONT_1, size=24)
@@ -157,48 +74,55 @@ class GameApp:
         self.card_title_game_view = ctk.CTkFont(family=FONT_1, size=32, weight="bold")
 
         # Countries
-        self.tile0 = SpecialTile(name="Start", value=500, location_id=0)
-        self.tile1 = Country(name="Polska", buy_cost=300, location_id=1)
-        self.tile2 = Country(name="Czechy", buy_cost=250, location_id=2)
-        self.tile3 = Country(name="Słowacja", buy_cost=250, location_id=3)
-        self.tile4 = SpecialTile(name="Pobierz kartę", value=0, location_id=4)
-        self.tile5 = Country(name="Niemcy", buy_cost=450, location_id=5)
-        self.tile6 = Country(name="Holandia", buy_cost=350, location_id=6)
-        self.tile7 = Country(name="Luksemburg", buy_cost=450, location_id=7)
-        self.tile8 = SpecialTile(name="Więzienie", value=1000, location_id=8)
-        self.tile9 = Country(name="Belgia", buy_cost=300, location_id=9)
-        self.tile10 = Country(name="Francja", buy_cost=500, location_id=10)
-        self.tile11 = Country(name="Anglia", buy_cost=450, location_id=11)
-        self.tile12 = SpecialTile(name="Pobierz kartę", value=0, location_id=12)
-        self.tile13 = Country(name="Hiszpania", buy_cost=350, location_id=13)
-        self.tile14 = Country(name="Portugalia", buy_cost=300, location_id=14)
-        self.tile15 = Country(name="Włochy", buy_cost=400, location_id=15)
-        self.tile16 = SpecialTile(name="Parking", value=50, location_id=16)
-        self.tile17 = Country(name="Litwa", buy_cost=250, location_id=17)
-        self.tile18 = Country(name="Estonia", buy_cost=250, location_id=18)
-        self.tile19 = Country(name="Łotwa", buy_cost=200, location_id=19)
-        self.tile20 = SpecialTile(name="Pobierz kartę", value=0, location_id=20)
-        self.tile21 = Country(name="Węgry", buy_cost=300, location_id=21)
-        self.tile22 = Country(name="Rumunia", buy_cost=300, location_id=22)
-        self.tile23 = Country(name="Mołdawia", buy_cost=200, location_id=23)
-        self.tile24 = SpecialTile(name="Podatki", value=10, location_id=24)
-        self.tile25 = Country(name="Bułgaria", buy_cost=300, location_id=25)
-        self.tile26 = Country(name="Serbia", buy_cost=250, location_id=26)
-        self.tile27 = Country(name="Chorwacja", buy_cost=3000, location_id=27)
-        self.tile28 = SpecialTile(name="Pobierz kartę", value=0, location_id=28)
-        self.tile29 = Country(name="Grecja", buy_cost=250, location_id=29)
-        self.tile30 = Country(name="Albania", buy_cost=250, location_id=30)
-        self.tile31 = Country(name="Turcja", buy_cost=350, location_id=31)
+        self.tile0 = Tile(tile_type="special", name="Start", value=self.start_value, location=0)
+        self.tile1 = Tile(tile_type="country", name="Polska", value=300, location=1)
+        self.tile2 = Tile(tile_type="country", name="Czechy", value=250, location=2)
+        self.tile3 = Tile(tile_type="country", name="Słowacja", value=250, location=3)
+        self.tile4 = Tile(tile_type="special", name="Pobierz kartę", value=0, location=4)
+        self.tile5 = Tile(tile_type="country", name="Niemcy", value=450, location=5)
+        self.tile6 = Tile(tile_type="country", name="Holandia", value=350, location=6)
+        self.tile7 = Tile(tile_type="country", name="Luksemburg", value=450, location=7)
+        self.tile8 = Tile(tile_type="special", name="Więzienie", value=1000, location=8)
+        self.tile9 = Tile(tile_type="country", name="Belgia", value=300, location=9)
+        self.tile10 = Tile(tile_type="country", name="Francja", value=500, location=10)
+        self.tile11 = Tile(tile_type="country", name="Anglia", value=450, location=11)
+        self.tile12 = Tile(tile_type="special", name="Pobierz kartę", value=0, location=12)
+        self.tile13 = Tile(tile_type="country", name="Hiszpania", value=350, location=13)
+        self.tile14 = Tile(tile_type="country", name="Portugalia", value=300, location=14)
+        self.tile15 = Tile(tile_type="country", name="Włochy", value=400, location=15)
+        self.tile16 = Tile(tile_type="special", name="Parking", value=self.parking_value, location=16)
+        self.tile17 = Tile(tile_type="country", name="Litwa", value=250, location=17)
+        self.tile18 = Tile(tile_type="country", name="Estonia", value=250, location=18)
+        self.tile19 = Tile(tile_type="country", name="Łotwa", value=200, location=19)
+        self.tile20 = Tile(tile_type="special", name="Pobierz kartę", value=0, location=20)
+        self.tile21 = Tile(tile_type="country", name="Węgry", value=300, location=21)
+        self.tile22 = Tile(tile_type="country", name="Rumunia", value=300, location=22)
+        self.tile23 = Tile(tile_type="country", name="Mołdawia", value=200, location=23)
+        self.tile24 = Tile(tile_type="special", name="Podatki", value=10, location=24)
+        self.tile25 = Tile(tile_type="country", name="Bułgaria", value=300, location=25)
+        self.tile26 = Tile(tile_type="country", name="Serbia", value=250, location=26)
+        self.tile27 = Tile(tile_type="country", name="Chorwacja", value=300, location=27)
+        self.tile28 = Tile(tile_type="special", name="Pobierz kartę", value=0, location=28)
+        self.tile29 = Tile(tile_type="country", name="Grecja", value=250, location=29)
+        self.tile30 = Tile(tile_type="country", name="Albania", value=250, location=30)
+        self.tile31 = Tile(tile_type="country", name="Turcja", value=350, location=31)
 
-        self.board = [self.tile0, self.tile1, self.tile2, self.tile3, self.tile4, self.tile5, self.tile6,
-                      self.tile7, self.tile8, self.tile9, self.tile10, self.tile11, self.tile12, self.tile13,
-                      self.tile14, self.tile15, self.tile16, self.tile17, self.tile18, self.tile19, self.tile20,
-                      self.tile21, self.tile22, self.tile23, self.tile24, self.tile25, self.tile26, self.tile27,
+        self.board = [self.tile0, self.tile1, self.tile2, self.tile3,
+                      self.tile4, self.tile5, self.tile6, self.tile7,
+                      self.tile8, self.tile9, self.tile10, self.tile11,
+                      self.tile12, self.tile13, self.tile14, self.tile15,
+                      self.tile16, self.tile17, self.tile18, self.tile19,
+                      self.tile20, self.tile21, self.tile22, self.tile23,
+                      self.tile24, self.tile25, self.tile26, self.tile27,
                       self.tile28, self.tile29, self.tile30, self.tile31]
 
         # Players
-        self.player_one = Player(name=self.player_one_name, start_money=self.start_value, color=self.player_one_color)
-        self.player_two = Player(name=self.player_two_name, start_money=self.start_value, color=self.player_two_color)
+        self.player_one = Player(name=self.player_one_name,
+                                 start_money=self.start_money,
+                                 color=self.player_one_color)
+        self.player_two = Player(name=self.player_two_name,
+                                 start_money=self.start_money,
+                                 color=self.player_two_color)
 
         # Create Main Frame
         self.game_frame = ctk.CTkFrame(master=self.master)
@@ -247,43 +171,15 @@ class GameApp:
         # Create Child Frame for Mid Board Frame
         self.tile_card_frame = ctk.CTkFrame(master=self.mid_board_frame, fg_color="transparent")
 
-        # Player One Widgets
-        self.player_one_name_label = ctk.CTkLabel(master=self.player_one_frame,
-                                                  text=self.player_one.name.upper(),
-                                                  font=self.font_label_name_game_view)
-
-        self.player_one_money_title = ctk.CTkLabel(master=self.player_one_frame,
-                                                   text="Saldo:",
-                                                   font=self.font_title_game_view)
-        self.player_one_money_label = ctk.CTkLabel(master=self.player_one_frame,
-                                                   text=self.player_one.money,
-                                                   font=self.font_label_game_view)
-
-        self.player_one_country_title = ctk.CTkLabel(master=self.player_one_frame,
-                                                     text="Lista krajów:",
-                                                     font=self.font_title_game_view)
-        self.player_one_country_label = ctk.CTkLabel(master=self.player_one_frame,
-                                                     text=self.player_one.country_list(),
-                                                     font=self.font_label_game_view)
-
-        # Player Two Widgets
-        self.player_two_name_label = ctk.CTkLabel(master=self.player_two_frame,
-                                                  text=self.player_two.name.upper(),
-                                                  font=self.font_label_name_game_view)
-
-        self.player_two_money_title = ctk.CTkLabel(master=self.player_two_frame,
-                                                   text="Saldo",
-                                                   font=self.font_title_game_view)
-        self.player_two_money_label = ctk.CTkLabel(master=self.player_two_frame,
-                                                   text=self.player_two.money,
-                                                   font=self.font_label_game_view)
-
-        self.player_two_country_title = ctk.CTkLabel(master=self.player_two_frame,
-                                                     text="Lista krajów",
-                                                     font=self.font_title_game_view)
-        self.player_two_country_label = ctk.CTkLabel(master=self.player_two_frame,
-                                                     text=self.player_two.country_list(),
-                                                     font=self.font_label_game_view)
+        # Players Widgets
+        (self.player_one_name_label, self.player_one_money_title,
+         self.player_one_money_label, self.player_one_country_title,
+         self.player_one_country_label) = self.create_player_widgets(frame=self.player_one_frame,
+                                                                     player=self.player_one)
+        (self.player_two_name_label, self.player_two_money_title,
+         self.player_two_money_label, self.player_two_country_title,
+         self.player_two_country_label) = self.create_player_widgets(frame=self.player_two_frame,
+                                                                     player=self.player_two)
 
         # Board Widgets
         self.tile0_area = ctk.CTkButton(master=self.tile0_frame,
@@ -480,54 +376,32 @@ class GameApp:
                                          fg_color=COUNTRY_COLOR_1)
 
         # Player One Layout
-        player_frame(name_label=self.player_one_name_label,
-                     money_title=self.player_one_money_title,
-                     money_label=self.player_one_money_label,
-                     country_title=self.player_one_country_title,
-                     country_label=self.player_one_country_label,
-                     color=self.player_one_color)
+        place_player_frame_widgets(name_label=self.player_one_name_label,
+                                   money_title=self.player_one_money_title,
+                                   money_label=self.player_one_money_label,
+                                   country_title=self.player_one_country_title,
+                                   country_label=self.player_one_country_label,
+                                   color=self.player_one_color)
 
         # Player Two Layout
-        player_frame(name_label=self.player_two_name_label,
-                     money_title=self.player_two_money_title,
-                     money_label=self.player_two_money_label,
-                     country_title=self.player_two_country_title,
-                     country_label=self.player_two_country_label,
-                     color=self.player_two_color)
+        place_player_frame_widgets(name_label=self.player_two_name_label,
+                                   money_title=self.player_two_money_title,
+                                   money_label=self.player_two_money_label,
+                                   country_title=self.player_two_country_title,
+                                   country_label=self.player_two_country_label,
+                                   color=self.player_two_color)
 
         # Board Layout
-        self.tile0_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile1_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile2_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile3_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile4_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile5_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile6_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile7_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile8_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile9_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile10_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile11_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile12_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile13_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile14_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile15_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile16_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile17_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile18_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile19_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile20_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile21_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile22_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile23_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile24_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile25_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile26_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile27_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile28_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile29_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile30_area.pack(fill=ctk.BOTH, expand=1)
-        self.tile31_area.pack(fill=ctk.BOTH, expand=1)
+        place_tile_areas(tile_list=[
+            self.tile0_area, self.tile1_area, self.tile2_area, self.tile3_area,
+            self.tile4_area, self.tile5_area, self.tile6_area, self.tile7_area,
+            self.tile8_area, self.tile9_area, self.tile10_area, self.tile11_area,
+            self.tile12_area, self.tile13_area, self.tile14_area, self.tile15_area,
+            self.tile16_area, self.tile17_area, self.tile18_area, self.tile19_area,
+            self.tile20_area, self.tile21_area, self.tile22_area, self.tile23_area,
+            self.tile24_area, self.tile25_area, self.tile26_area, self.tile27_area,
+            self.tile28_area, self.tile29_area, self.tile30_area, self.tile31_area
+        ])
 
         # Child Frames For Board Frame
         y = 9
@@ -609,6 +483,123 @@ class GameApp:
 
         self.show_dice_result(self.player_one.throw_dice())
 
+    def set_player_view(self):
+        # Create Frame
+        self.menu_frame = ctk.CTkFrame(master=self.master)
+
+        # Fonts
+        self.font_label_set_player_view = ctk.CTkFont(family=FONT_1, size=48, weight="bold")
+        self.font_entry_set_player_view = ctk.CTkFont(family=FONT_1, size=32, weight="bold")
+        self.font_button_set_player_view = self.font_button_main_menu
+
+        # Players Widgets
+        self.player_one_choose_color = ctk.CTkButton(master=self.menu_frame,
+                                                     text="Wybierz kolor",
+                                                     command=lambda: self.choose_color_button(
+                                                         self.player_one_choose_color),
+                                                     font=self.font_entry_set_player_view)
+        self.player_two_choose_color = ctk.CTkButton(master=self.menu_frame,
+                                                     text="Wybierz kolor",
+                                                     command=lambda: self.choose_color_button(
+                                                         self.player_two_choose_color),
+                                                     font=self.font_entry_set_player_view)
+
+        self.player_one_label, self.player_one_entry = self.create_set_player_view_widgets(
+            label_text="Gracz 1",
+            entry_text="Wybierz kolor")
+        self.player_two_label, self.player_two_entry = self.create_set_player_view_widgets(
+            label_text="Gracz 2",
+            entry_text="Wybierz kolor")
+
+        # Game settings Widgets
+        self.start_money_label, self.start_money_entry = self.create_set_player_view_widgets(
+            label_text="Stan konta na start",
+            entry_text="Domyślnie 2000")
+        self.start_value_label, self.start_value_entry = self.create_set_player_view_widgets(
+            label_text="Bonus za pole Start",
+            entry_text="Domyślnie 500")
+        self.parking_value_label, self.parking_value_entry = self.create_set_player_view_widgets(
+            label_text="Cena za parking",
+            entry_text="Domyślnie 50")
+
+        # Widgets
+        self.start_game_button = ctk.CTkButton(master=self.menu_frame,
+                                               text="Start",
+                                               command=self.start_game_button_click,
+                                               font=self.font_button_set_player_view,
+                                               fg_color=BUTTON_COLOR_1,
+                                               hover_color=HOVER_BUTTON_COLOR_1)
+
+        # Layout
+        # First row
+        self.place_set_player_view_widgets(x=0, y=0, label=self.player_one_label,
+                                           entry=self.player_one_entry, button=self.player_one_choose_color)
+        self.place_set_player_view_widgets(x=0.5, y=0, label=self.player_two_label,
+                                           entry=self.player_two_entry, button=self.player_two_choose_color)
+
+        # Second row
+        self.place_set_player_view_widgets(x=0, y=0.3, label=self.start_money_label,
+                                           entry=self.start_money_entry, button=None)
+        self.place_set_player_view_widgets(x=0.5, y=0.3, label=self.parking_value_label,
+                                           entry=self.parking_value_entry, button=None)
+
+        # Last row
+        self.start_game_button.place(relx=0.5, rely=0.7, anchor=ctk.CENTER, relwidth=0.15, relheight=0.08)
+
+        # Frame
+        self.menu_frame.pack(fill=ctk.BOTH, expand=1)
+
+    def choose_color_button(self, button):
+        color = colorchooser.askcolor()[1]
+        button.configure(fg_color=color)
+
+    def create_set_player_view_widgets(self, label_text: str, entry_text: str):
+        label = ctk.CTkLabel(master=self.menu_frame,
+                             text=label_text,
+                             font=self.font_label_set_player_view)
+        entry = ctk.CTkEntry(master=self.menu_frame,
+                             placeholder_text=entry_text,
+                             font=self.font_entry_set_player_view)
+        return label, entry
+
+    def place_set_player_view_widgets(self, x: float, y: float, label, entry, button):
+        label.place(relx=0.25 + x, rely=0.2 + y, anchor=ctk.CENTER)
+        entry.place(relx=0.25 + x, rely=0.27 + y, anchor=ctk.CENTER, relwidth=0.2, relheight=0.05)
+        if button:
+            button.place(relx=0.25 + x, rely=0.34 + y, anchor=ctk.CENTER, relwidth=0.2, relheight=0.05)
+
+    def create_player_widgets(self, frame, player):
+        name_label = ctk.CTkLabel(master=frame,
+                                  text=player.name.upper(),
+                                  font=self.font_label_name_game_view)
+        money_title = ctk.CTkLabel(master=frame,
+                                   text="Saldo:",
+                                   font=self.font_title_game_view)
+        money_label = ctk.CTkLabel(master=frame,
+                                   text=f"{player.money}$",
+                                   font=self.font_label_game_view)
+        country_title = ctk.CTkLabel(master=frame,
+                                     text="Lista krajów:",
+                                     font=self.font_title_game_view)
+        country_label = ctk.CTkLabel(master=frame,
+                                     text=player.country_list(),
+                                     font=self.font_label_game_view)
+        return name_label, money_title, money_label, country_title, country_label
+
+    def start_game_button_click(self):
+        # Set variables
+        # Player settings
+        self.player_one_name = self.player_one_entry.get()
+        self.player_one_color = self.player_one_choose_color.cget("fg_color")
+        self.player_two_name = self.player_two_entry.get()
+        self.player_two_color = self.player_two_choose_color.cget("fg_color")
+        # Game settings
+        self.start_money = self.start_money_entry.get()
+        self.start_value = self.start_value_entry.get()
+        self.parking_value = self.parking_value_entry.get()
+        # Change Frame
+        change_frame(old_frame=self.menu_frame, new_frame=self.game_view)
+
     def show_tile_stats(self, status, frame, tile):
         # Delete Widgets
         for widget in frame.winfo_children():
@@ -620,28 +611,28 @@ class GameApp:
         # Widgets For Frame
         name_label = ctk.CTkLabel(master=frame, text=tile.name)
         if status == "country":
-            name_title = ctk.CTkLabel(master=frame, text="Raj:")
+            name_title = ctk.CTkLabel(master=frame, text="Kraj:")
             owner_title = ctk.CTkLabel(master=frame, text="Właściciel:")
             owner_label = ctk.CTkLabel(master=frame, text=tile.return_owner())
             buy_cost_title = ctk.CTkLabel(master=frame, text="Wartość kupna:")
-            buy_cost_label = ctk.CTkLabel(master=frame, text=tile.buy_cost)
+            buy_cost_label = ctk.CTkLabel(master=frame, text=f"{tile.buy_cost}$")
             sell_cost_title = ctk.CTkLabel(master=frame, text="Wartość sprzedaży:")
-            sell_cost_label = ctk.CTkLabel(master=frame, text=tile.sell_cost)
+            sell_cost_label = ctk.CTkLabel(master=frame, text=f"{tile.sell_cost}$")
             rent_title = ctk.CTkLabel(master=frame, text="Wartość czynszu:")
-            rent_label = ctk.CTkLabel(master=frame, text=tile.rent)
+            rent_label = ctk.CTkLabel(master=frame, text=f"{tile.rent_cost}$")
         elif status == "start":
-            value_label = ctk.CTkLabel(master=frame, text=f"Za wejśćie na to pole\ndostaniesz {tile.value}")
+            value_label = ctk.CTkLabel(master=frame, text=f"Za wejśćie na to pole\ndostaniesz {tile.effect_value}$")
         elif status == "prison":
             value_label = ctk.CTkLabel(master=frame,
-                                       text=f"Jeśli wejdziesz do więzienia\nstracisz {tile.value}.\nJeśli tyle nie masz\nto stracisz wszystkie pieniądze")
+                                       text=f"Jeśli wejdziesz do więzienia\nstracisz {tile.effect_value}$.\nJeśli tyle nie masz\nto stracisz wszystkie pieniądze")
         elif status == "parking":
-            value_label = ctk.CTkLabel(master=frame, text=f"Za postój na parkingu\nzapłacisz {tile.value}")
+            value_label = ctk.CTkLabel(master=frame, text=f"Za postój na parkingu\nzapłacisz {tile.effect_value}$")
         elif status == "take_card":
             value_label = ctk.CTkLabel(master=frame,
                                        text="Na tym polu pobierasz kartę,\nktóra może mieć efekt\npozytywny albo negatywny")
         elif status == "tax":
             value_label = ctk.CTkLabel(master=frame,
-                                       text=f"Jeśli wejdziesz na to pole\nbędziesz zapłacić podatek\nod posiadanych krajów\nw wysokości {tile.value}\nza każdy posiadany kraj")
+                                       text=f"Jeśli wejdziesz na to pole\nbędziesz zapłacić podatek\nod posiadanych krajów\nw wysokości {tile.effect_value}%\nza każdy posiadany kraj")
 
         # Widgets For Card Frame
         color_banner = ctk.CTkLabel(master=card_frame, fg_color="#b50b49", text=tile.name, bg_color="#262626",
@@ -670,6 +661,10 @@ class GameApp:
         # Frame
         frame.place(relx=0.5, rely=0.25, anchor=ctk.CENTER, relwidth=1, relheight=0.5)
         frame.configure(fg_color="transparent")
+
+    def create_dice_point_label(self, frame):
+        return ctk.CTkLabel(master=frame, fg_color=DICE_POINT_COLOR_1,
+                            text="", corner_radius=20)
 
     def show_dice_result(self, dice):
         # Variables
@@ -732,38 +727,28 @@ class GameApp:
                             relheight=dice_point_relheight)
 
         # Create Frame
-        self.dice_frame = ctk.CTkFrame(master=self.mid_board_frame)
+        self.dice_frame = ctk.CTkFrame(master=self.mid_board_frame, fg_color="transparent")
 
         # Create Child Frames
         self.dice1_frame = ctk.CTkFrame(master=self.dice_frame, fg_color=DICE_COLOR_1)
         self.dice2_frame = ctk.CTkFrame(master=self.dice_frame, fg_color=DICE_COLOR_1)
 
         # Widgets
-        self.dice_point_1 = ctk.CTkLabel(master=self.dice1_frame, fg_color=DICE_POINT_COLOR_1,
-                                         text="", corner_radius=20)
-        self.dice_point_2 = ctk.CTkLabel(master=self.dice1_frame, fg_color=DICE_POINT_COLOR_1,
-                                         text="", corner_radius=20)
-        self.dice_point_3 = ctk.CTkLabel(master=self.dice1_frame, fg_color=DICE_POINT_COLOR_1,
-                                         text="", corner_radius=20)
-        self.dice_point_4 = ctk.CTkLabel(master=self.dice1_frame, fg_color=DICE_POINT_COLOR_1,
-                                         text="", corner_radius=20)
-        self.dice_point_5 = ctk.CTkLabel(master=self.dice1_frame, fg_color=DICE_POINT_COLOR_1,
-                                         text="", corner_radius=20)
-        self.dice_point_6 = ctk.CTkLabel(master=self.dice1_frame, fg_color=DICE_POINT_COLOR_1,
-                                         text="", corner_radius=20)
-        self.dice_point_7 = ctk.CTkLabel(master=self.dice2_frame, fg_color=DICE_POINT_COLOR_1,
-                                         text="", corner_radius=20)
-        self.dice_point_8 = ctk.CTkLabel(master=self.dice2_frame, fg_color=DICE_POINT_COLOR_1,
-                                         text="", corner_radius=20)
-        self.dice_point_9 = ctk.CTkLabel(master=self.dice2_frame, fg_color=DICE_POINT_COLOR_1,
-                                         text="", corner_radius=20)
-        self.dice_point_10 = ctk.CTkLabel(master=self.dice2_frame, fg_color=DICE_POINT_COLOR_1,
-                                          text="", corner_radius=20)
-        self.dice_point_11 = ctk.CTkLabel(master=self.dice2_frame, fg_color=DICE_POINT_COLOR_1,
-                                          text="", corner_radius=20)
-        self.dice_point_12 = ctk.CTkLabel(master=self.dice2_frame, fg_color=DICE_POINT_COLOR_1,
-                                          text="", corner_radius=20)
-        self.dice_result_label = ctk.CTkLabel(master=self.dice_frame, text=self.dice["result"],
+        self.dice_point_1 = self.create_dice_point_label(frame=self.dice1_frame)
+        self.dice_point_2 = self.create_dice_point_label(frame=self.dice1_frame)
+        self.dice_point_3 = self.create_dice_point_label(frame=self.dice1_frame)
+        self.dice_point_4 = self.create_dice_point_label(frame=self.dice1_frame)
+        self.dice_point_5 = self.create_dice_point_label(frame=self.dice1_frame)
+        self.dice_point_6 = self.create_dice_point_label(frame=self.dice1_frame)
+        self.dice_point_7 = self.create_dice_point_label(frame=self.dice2_frame)
+        self.dice_point_8 = self.create_dice_point_label(frame=self.dice2_frame)
+        self.dice_point_9 = self.create_dice_point_label(frame=self.dice2_frame)
+        self.dice_point_10 = self.create_dice_point_label(frame=self.dice2_frame)
+        self.dice_point_11 = self.create_dice_point_label(frame=self.dice2_frame)
+        self.dice_point_12 = self.create_dice_point_label(frame=self.dice2_frame)
+
+        self.dice_result_label = ctk.CTkLabel(master=self.dice_frame,
+                                              text=self.dice["result"],
                                               font=self.dice_result_font)
 
         # Layout

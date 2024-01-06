@@ -2,66 +2,60 @@ from random import randint, choice, random
 from settings import *
 
 
-class SpecialTile:
-    def __init__(self, name: str, value: int, location_id: int):
+class Tile:
+    def __init__(self, tile_type: str, name: str, value: int, location: int):
         self.name = name
-        self.value = value
-        self.location = location_id
-        self.owner = 0
+        self.location = location
+        if tile_type == "country":
+            self.buy_cost = value
+            self.sell_cost = int(self.buy_cost * 0.8)
+            self.rent_cost = int(self.buy_cost * 0.1)
+            self.owner = None
+        elif tile_type == "special":
+            if name == "Start":
+                self.effect_value = 500 if not value else value
+            elif name == "Parking":
+                self.effect_value = 50 if not value else value
+            elif name == "Więzienie":
+                self.effect_value = 1000 if not value else value
+            else:
+                self.effect_value = value
+
+    def __str__(self):
+        return self.name
 
     def start_bonus(self, player):
-        player.money += self.value
+        player.money += self.effect_value
 
     def parking_pay(self, player):
-        player.money -= self.value
+        player.money -= self.effect_value
 
     def tax_pay(self, player):
-        player.money -= self.value
+        tax_result = 0
+        if player.countries:
+            for country in player.countries:
+                tax_result += country.buy_cost * self.effect_value / 100
+            player.money -= tax_result
 
     def prison_pay(self, player):
-        print("Trafiłeś do więzienia")
-        if player.money >= 1000:
-            player.money -= self.value
-        if player.money < 1000:
+        if player.money > self.effect_value:
+            player.money -= self.effect_value
+        elif player.money <= self.effect_value:
             player.money = 0
 
     def card_random_effect(self, player):
         random_number = randint(-10, 10)
         random_number = random_number * 40
-
         player.money += random_number
-        if random_number < 0:
-            print(f"Zabrano ci {random_number}")
-        elif random_number == 0:
-            print("Nic się nie stało")
-        elif random_number > 0:
-            print(f"Dostałeś {random_number}")
-
-
-class Country:
-    def __init__(self, name, buy_cost, location_id):
-        self.name = name
-        self.location = location_id
-        self.buy_cost = buy_cost
-        self.sell_cost = self.buy_cost * 0.8
-        self.rent = 0.10 * self.buy_cost
-        self.owner = None
-
-    def __str__(self):
-        return self.name
 
     def rent_pay(self, player):
-        player.money -= self.rent
-        if player.money >= 0:
-            print(f"Zapłacono {self.rent}")
-        else:
-            print("Bankructwo")
+        player.money -= self.rent_cost
 
     def return_owner(self):
         if self.owner is not None:
             return f"{self.owner}"
         else:
-            return "Kraj nie ma właściciela"
+            return "Brak"
 
 
 class Player:
@@ -99,7 +93,7 @@ class Player:
         if self.money >= country.buy_cost:
             if country.owner is None:
                 self.money -= country.buy_cost
-                self.countries.append(country.name)
+                self.countries.append(country)
                 country.owner = self
 
     def sell_country(self, country):
@@ -121,4 +115,4 @@ class Player:
     def move(self, dice, board):
         self.location = self.location + dice
         if self.location > len(board):
-            self.location = self.location - (len(board)+1)
+            self.location = self.location - (len(board) + 1)
