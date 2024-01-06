@@ -513,7 +513,7 @@ class GameApp:
 
         # Game settings Widgets
         self.start_money_label, self.start_money_entry = self.create_set_player_view_widgets(
-            label_text="Stan konta na start",
+            label_text="Saldo początkowe",
             entry_text="Domyślnie 2000")
         self.start_value_label, self.start_value_entry = self.create_set_player_view_widgets(
             label_text="Bonus za pole Start",
@@ -540,6 +540,8 @@ class GameApp:
         # Second row
         self.place_set_player_view_widgets(x=0, y=0.3, label=self.start_money_label,
                                            entry=self.start_money_entry, button=None)
+        self.place_set_player_view_widgets(x=0.25, y=0.3, label=self.start_value_label,
+                                           entry=self.start_value_entry, button=None)
         self.place_set_player_view_widgets(x=0.5, y=0.3, label=self.parking_value_label,
                                            entry=self.parking_value_entry, button=None)
 
