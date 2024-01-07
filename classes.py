@@ -6,6 +6,7 @@ class Tile:
     def __init__(self, tile_type: str, name: str, value: int, location: int):
         self.name = name
         self.location = location
+        self.tile_type = tile_type
         if tile_type == "country":
             self.buy_cost = value
             self.sell_cost = int(self.buy_cost * 0.8)
@@ -18,6 +19,8 @@ class Tile:
                 self.effect_value = 50 if not value else value
             elif name == "Więzienie":
                 self.effect_value = 1000 if not value else value
+            elif name == "Podatki":
+                self.effect_value = 10 if not value else value
             else:
                 self.effect_value = value
 
@@ -53,7 +56,7 @@ class Tile:
 
     def return_owner(self):
         if self.owner is not None:
-            return f"{self.owner}"
+            return f"{self.owner.name}"
         else:
             return "Brak"
 
@@ -99,20 +102,16 @@ class Player:
     def sell_country(self, country):
         if country.owner == self:
             self.money += country.sell_cost
+            self.countries.remove(country)
             country.owner = None
 
     def throw_dice(self):
         dice1 = randint(1, 6)
         dice2 = randint(1, 6)
         result = dice1 + dice2
-
-        return {
-            "dice1": dice1,
-            "dice2": dice2,
-            "result": result
-        }
+        return dice1, dice2, result
 
     def move(self, dice, board):
         self.location = self.location + dice
-        if self.location > len(board):
-            self.location = self.location - (len(board) + 1)
+        if self.location > (len(board))-1:
+            self.location = self.location - len(board)
